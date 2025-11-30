@@ -3,7 +3,18 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+// Messaging import made optional to prevent app loading issues
+let messaging: any = null;
+let getToken: any = null;
+let onMessage: any = null;
+
+try {
+  const messagingModule = await import('firebase/messaging');
+  getToken = messagingModule.getToken;
+  onMessage = messagingModule.onMessage;
+} catch (error) {
+  console.warn('Firebase messaging not available:', error);
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyA5AX4ofkp0E5O-A70c3W8qA5tSO5CguXo",
@@ -19,10 +30,24 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app);
-export const messaging = getMessaging(app);
+
+// Initialize messaging only if available
+try {
+  const { getMessaging } = await import('firebase/messaging');
+  messaging = getMessaging(app);
+} catch (error) {
+  console.warn('Firebase messaging initialization failed:', error);
+}
+
+export { messaging };
 
 // Request permission and get token
 export const requestNotificationPermission = async () => {
+  if (!messaging || !getToken) {
+    console.warn('Firebase messaging not available');
+    return null;
+  }
+  
   try {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
@@ -38,8 +63,17 @@ export const requestNotificationPermission = async () => {
 
 // Handle foreground messages
 export const onMessageListener = () =>
-  new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      resolve(payload);
-    });
+  new Promise((resolve, reject) => {
+    if (!messaging || !onMessage) {
+      reject(new Error('Firebase messaging not available'));
+      return;
+    }
+    
+    try {
+      onMessage(messaging, (payload) => {
+        resolve(payload);
+      });
+    } catch (error) {
+      reject(error);
+    }
   });
