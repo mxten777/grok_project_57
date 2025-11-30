@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own reservations
+    match /reservations/{reservationId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Admins can read/write all reservations
+    match /reservations/{reservationId} {
+      allow read, write: if request.auth != null && request.auth.token.email == 'admin@library.com';
+    }
+
+    // Similar rules for other collections
+    match /spaces/{spaceId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'admin@library.com';
+    }
+
+    match /waitlists/{waitlistId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    match /feedback/{feedbackId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    match /stats/{date} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'admin@library.com';
+    }
+  }
+}
