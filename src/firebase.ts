@@ -26,7 +26,8 @@ export const requestNotificationPermission = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
-      const token = await getToken(messaging, { vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY });
+      // VAPID key will be set later if push notifications are needed
+      const token = await getToken(messaging, { vapidKey: 'your-vapid-key-here' });
       return token;
     }
   } catch (error) {
