@@ -18,11 +18,18 @@
 
 ### 권장 배포 방식
 
-1. **프론트엔드**: Vercel (또는 Netlify)
+1. **프론트엔드**: Vercel (또는 Netlify) - **현재 사용중**
 2. **백엔드**: Firebase Cloud Functions
 3. **데이터베이스**: Firestore
 4. **파일 저장소**: Firebase Storage
 5. **호스팅**: Firebase Hosting (대안)
+
+### 현재 배포 상태
+
+- **Vercel 프로덕션 URL**: https://grok-project-57-lqa8nv0ah-dongyeol-jungs-projects.vercel.app
+- **Firebase 프로젝트**: grok-project-57
+- **마지막 배포**: 2025년 11월 30일
+- **UI/UX 버전**: v1.1.0 (프리미엄 고도화 적용)
 
 ### CI/CD 파이프라인
 
@@ -175,23 +182,20 @@ npm run serve
 firebase deploy --only functions
 ```
 
-## Vercel 배포
+### Vercel 배포 (현재 사용중)
 
-### 1. Vercel 프로젝트 연결
+#### 프로젝트 정보
+- **프로젝트 ID**: grok-project-57
+- **소유자**: dongyeol-jungs-projects
+- **프로덕션 URL**: https://grok-project-57-lqa8nv0ah-dongyeol-jungs-projects.vercel.app
+- **마지막 배포**: 2025년 11월 30일 (v1.1.0)
 
-```bash
-# Vercel CLI 설치
-npm i -g vercel
+#### 배포 히스토리
+- **v1.1.0** (2025-11-30): UI/UX 프리미엄 고도화, 다크 모드, 토스트 알림
+- **v1.0.0** (2025-11-30): 초기 MVP 런칭
 
-# 로그인
-vercel login
-
-# 프로젝트 연결
-vercel
-
-# 또는 GitHub 연동
-# GitHub 저장소에 vercel.json 파일이 있는 경우 자동 감지
-```
+#### 자동 배포 설정
+GitHub 저장소와 연동되어 `main` 브랜치 푸시 시 자동 배포됩니다.
 
 ### 2. 환경변수 설정
 
