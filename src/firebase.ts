@@ -6,12 +6,12 @@ import { getFunctions } from 'firebase/functions';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyA5AX4ofkp0E5O-A70c3W8qA5tSO5CguXo",
+  authDomain: "grok-project-57.firebaseapp.com",
+  projectId: "grok-project-57",
+  storageBucket: "grok-project-57.firebasestorage.app",
+  messagingSenderId: "1016928327488",
+  appId: "1:1016928327488:web:c97256e798b2ceb526cca5"
 };
 
 const app = initializeApp(firebaseConfig);
