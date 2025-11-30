@@ -3,8 +3,9 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import LoadingSpinner from '../components/LoadingSpinner';
 import { Search, Users, MapPin } from 'lucide-react';
+import { Card } from '../components/Card';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 interface Space {
   id: string;
@@ -155,82 +156,91 @@ const Home = () => {
       <h1 className="text-3xl font-bold mb-8">도서관 예약 시스템</h1>
       
       {/* Search and Filter Section */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row gap-4">
+      <Card className="mb-8">
+        <div className="space-y-4">
           {/* Search Input */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                placeholder="공간명, 설명, 위치로 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="공간명, 설명, 위치로 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+            />
+          </div>
+          
+          {/* Filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
+                유형
+              </label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="all">모든 유형</option>
+                <option value="program">프로그램</option>
+                <option value="room">강의실</option>
+                <option value="studyroom">스터디룸</option>
+              </select>
+            </div>
+            
+            {/* Capacity Filter */}
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
+                정원
+              </label>
+              <select
+                value={selectedCapacity}
+                onChange={(e) => setSelectedCapacity(e.target.value)}
+                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="all">모든 정원</option>
+                <option value="small">소규모 (10명 이하)</option>
+                <option value="medium">중규모 (11-30명)</option>
+                <option value="large">대규모 (30명 초과)</option>
+              </select>
+            </div>
+            
+            {/* Results Count */}
+            <div className="flex items-end">
+              <div className="text-sm text-secondary-600">
+                총 {filteredSpaces.length}개의 공간
+              </div>
             </div>
           </div>
-          
-          {/* Type Filter */}
-          <div className="w-full md:w-48">
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">모든 유형</option>
-              <option value="program">프로그램</option>
-              <option value="room">강의실</option>
-              <option value="studyroom">스터디룸</option>
-            </select>
-          </div>
-          
-          {/* Capacity Filter */}
-          <div className="w-full md:w-48">
-            <select
-              value={selectedCapacity}
-              onChange={(e) => setSelectedCapacity(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">모든 정원</option>
-              <option value="small">소규모 (10명 이하)</option>
-              <option value="medium">중규모 (11-30명)</option>
-              <option value="large">대규모 (30명 초과)</option>
-            </select>
-          </div>
         </div>
-        
-        {/* Results Count */}
-        <div className="mt-4 text-sm text-gray-600">
-          총 {filteredSpaces.length}개의 공간이 검색되었습니다.
-        </div>
-      </div>
+      </Card>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredSpaces.map((space, index) => (
           <motion.div
             key={space.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden"
+            className="bg-white rounded-2xl shadow-soft overflow-hidden hover:shadow-medium transition-shadow duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
-            <img src={space.imageUrl} alt={space.name} className="w-full h-48 object-cover" />
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{space.name}</h2>
-              <p className="text-gray-600 mb-2">{space.description}</p>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center text-sm text-gray-500">
+            <img src={space.imageUrl} alt={space.name} className="w-full h-48 object-cover" loading="lazy" />
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2 text-secondary-900">{space.name}</h2>
+              <p className="text-secondary-600 mb-3 line-clamp-2">{space.description}</p>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center text-sm text-secondary-500">
                   <Users className="h-4 w-4 mr-1" />
                   정원: {space.capacity}명
                 </div>
-                <div className="flex items-center text-sm text-gray-500">
+                <div className="flex items-center text-sm text-secondary-500">
                   <MapPin className="h-4 w-4 mr-1" />
                   {space.location}
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   space.type === 'program' ? 'bg-blue-100 text-blue-800' :
                   space.type === 'room' ? 'bg-green-100 text-green-800' :
                   'bg-purple-100 text-purple-800'
@@ -240,7 +250,7 @@ const Home = () => {
                 </span>
                 <Link
                   to={`/reservation/${space.id}`}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
                 >
                   예약하기
                 </Link>
