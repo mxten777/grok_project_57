@@ -2,7 +2,6 @@ const CACHE_NAME = 'library-reservation-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
   '/vite.svg'
 ];
 
