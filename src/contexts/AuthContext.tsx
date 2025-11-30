@@ -32,14 +32,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAdmin(user?.email === 'admin@library.com');
 
       if (user) {
-        // Request notification permission and save token
-        const token = await requestNotificationPermission();
-        if (token) {
-          setFcmToken(token);
-          // Save token to Firestore
+        // Request notification permission and save token (optional)
+        try {
+          const token = await requestNotificationPermission();
+          if (token) {
+            setFcmToken(token);
+            // Save token to Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+              fcmToken: token,
+              email: user.email,
+              displayName: user.displayName,
+              isAdmin: user.email === 'admin@library.com',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+          }
+        } catch (error) {
+          console.warn('FCM token setup failed:', error);
+          // Still save basic user info without FCM token
           await setDoc(doc(db, 'users', user.uid), {
-            fcmToken: token,
             email: user.email,
+            displayName: user.displayName,
+            isAdmin: user.email === 'admin@library.com',
+            createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           }, { merge: true });
         }
@@ -48,15 +63,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Listen for foreground messages
-    onMessageListener().then((payload: any) => {
-      console.log('Foreground message:', payload);
-      // Show notification
-      new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: '/icon-192.png'
+    // Listen for foreground messages (optional)
+    try {
+      onMessageListener().then((payload: any) => {
+        console.log('Foreground message:', payload);
+        // Show notification
+        if (Notification.permission === 'granted') {
+          new Notification(payload.notification.title, {
+            body: payload.notification.body,
+            icon: '/icon-192.png'
+          });
+        }
+      }).catch((error) => {
+        console.warn('Message listener setup failed:', error);
       });
-    });
+    } catch (error) {
+      console.warn('Message listener initialization failed:', error);
+    }
 
     return unsubscribe;
   }, []);
