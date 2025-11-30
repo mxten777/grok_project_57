@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.svg', '**/*.gif'],
   build: {
+    target: 'es2022',
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {

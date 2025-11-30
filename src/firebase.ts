@@ -3,18 +3,24 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
-// Messaging import made optional to prevent app loading issues
-let messaging: any = null;
-let getToken: any = null;
-let onMessage: any = null;
 
-try {
-  const messagingModule = await import('firebase/messaging');
-  getToken = messagingModule.getToken;
-  onMessage = messagingModule.onMessage;
-} catch (error) {
-  console.warn('Firebase messaging not available:', error);
-}
+// Messaging variables
+let messaging: any = null;
+let getTokenFunc: any = null;
+let onMessageFunc: any = null;
+
+// Initialize messaging asynchronously
+const initializeMessaging = async () => {
+  try {
+    const messagingModule = await import('firebase/messaging');
+    getTokenFunc = messagingModule.getToken;
+    onMessageFunc = messagingModule.onMessage;
+    return messagingModule.getMessaging;
+  } catch (error) {
+    console.warn('Firebase messaging not available:', error);
+    return null;
+  }
+};
 
 const firebaseConfig = {
   apiKey: "AIzaSyA5AX4ofkp0E5O-A70c3W8qA5tSO5CguXo",
@@ -31,19 +37,20 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app);
 
-// Initialize messaging only if available
-try {
-  const { getMessaging } = await import('firebase/messaging');
-  messaging = getMessaging(app);
-} catch (error) {
+// Initialize messaging asynchronously
+initializeMessaging().then((getMessaging) => {
+  if (getMessaging) {
+    messaging = getMessaging(app);
+  }
+}).catch((error) => {
   console.warn('Firebase messaging initialization failed:', error);
-}
+});
 
 export { messaging };
 
 // Request permission and get token
 export const requestNotificationPermission = async () => {
-  if (!messaging || !getToken) {
+  if (!messaging || !getTokenFunc) {
     console.warn('Firebase messaging not available');
     return null;
   }
@@ -52,7 +59,7 @@ export const requestNotificationPermission = async () => {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       // VAPID key will be set later if push notifications are needed
-      const token = await getToken(messaging, { vapidKey: 'your-vapid-key-here' });
+      const token = await getTokenFunc(messaging, { vapidKey: 'your-vapid-key-here' });
       return token;
     }
   } catch (error) {
@@ -64,13 +71,13 @@ export const requestNotificationPermission = async () => {
 // Handle foreground messages
 export const onMessageListener = () =>
   new Promise((resolve, reject) => {
-    if (!messaging || !onMessage) {
+    if (!messaging || !onMessageFunc) {
       reject(new Error('Firebase messaging not available'));
       return;
     }
     
     try {
-      onMessage(messaging, (payload) => {
+      onMessageFunc(messaging, (payload: any) => {
         resolve(payload);
       });
     } catch (error) {
